@@ -140,6 +140,8 @@ def callback_inline(call):
 
                 if USERid_MODE[call.message.chat.id][0] == '#7':
                     TASK_7.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
+                elif USERid_MODE[call.message.chat.id][0] == '#9':
+                    TASK_9.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
                 elif USERid_MODE[call.message.chat.id][0] == '#14':
                     TASK_14.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
     except Exception as e:
