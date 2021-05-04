@@ -1,9 +1,11 @@
 # pyTelegramBotAPI needed
 import telebot
 import config
-import random
+from random import randint
 from telebot import types
 
+
+# Init bot
 bot = telebot.TeleBot(config.TOKEN)
 
 
@@ -18,9 +20,17 @@ def welcome(message):
     items = [
         types.KeyboardButton('#2'),
         types.KeyboardButton('#7'),
-        types.KeyboardButton('#14')
+        types.KeyboardButton('#9'),
+        types.KeyboardButton('#10'),
+        types.KeyboardButton('#11'),
+        types.KeyboardButton('#12'),
+        types.KeyboardButton('#13'),
+        types.KeyboardButton('#14'),
+        types.KeyboardButton('#15')
     ]
     markup.add(items[0], items[1], items[2])
+    markup.add(items[3], items[4], items[5])
+    markup.add(items[6], items[7], items[8])
 
     hi_message = "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, бот, созданный чтобы " \
                  "<strike>быть подопытным кроликом</strike> помочь тебе с подготовкой к ЕГЭ по русскому.\n\n" \
@@ -65,63 +75,14 @@ def lalala(message):
             welcome(message)
             return
         if not USERid_MODE[message.chat.id][0]:
-            if message.text == '#2':
-                USERid_MODE[message.chat.id][0] = '#2'
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                items = [
-                    'Частицы',
-                    'Местоимения',
-                    'Хочу все и сразу!',
-                    'Верните назад!'
-                ]
-                for item in items:
-                    markup.add(item)
-                bot.send_message(message.chat.id, 'Круто, выбери тему из списка ниже:', reply_markup=markup)
-            elif message.text == '#7':
-                USERid_MODE[message.chat.id][0] = '#7'
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                items = [
-                    'Множественное число',
-                    'Склонение числительных',
-                    'Хочу все и сразу!',
-                    'Верните назад!'
-                ]
-                for item in items:
-                    markup.add(item)
-                bot.send_message(message.chat.id, 'Круто, выбери тему из списка ниже:', reply_markup=markup)
-            elif message.text == '#14':
-                USERid_MODE[message.chat.id][0] = '#14'
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                items = [
-                    'Хочу все и сразу!',
-                    'Верните назад!'
-                ]
-                for item in items:
-                    markup.add(item)
-                bot.send_message(message.chat.id, 'Круто, выбери тему из списка ниже:', reply_markup=markup)
-            else:
-                bot.send_message(message.chat.id, 'I don\'t understand you...')
-        elif USERid_MODE[message.chat.id][0] == '#2':
-            if message.text == 'Частицы':
-                TASK_2.get_task(message.chat.id, 'particles')
-            elif message.text == 'Местоимения':
+            if message.text in ['#2', '#7', '#9', '#14']:
+                go2task_main_menu(message.chat.id, message.text)
+            elif message.text in ['#1', '#3', '#4', '#5', '#6', '#8', '#10', '#11', '#12', '#13', '#15', '#16', '#17', '#18', '#19', '#20', '#21', '#22', '#23', '#24', '#25', '#26', '#27']:
                 bot.send_message(message.chat.id, 'Этот режим еще в разработке :)')
-            elif message.text == 'Хочу все и сразу!':
-                bot.send_message(message.chat.id, 'Этот режим еще в разработке :)')
-        elif USERid_MODE[message.chat.id][0] == '#7':
-            if message.text == 'Множественное число':
-                TASK_7.get_task(message.chat.id, 'plural')
-            elif message.text == 'Склонение числительных':
-                TASK_7.get_task(message.chat.id, 'numerals')
-            elif message.text == 'Хочу все и сразу!':
-                TASK_7.get_task(message.chat.id, 'all')
             else:
                 bot.send_message(message.chat.id, 'I don\'t understand you...')
-        elif USERid_MODE[message.chat.id][0] == '#14':
-            if message.text == 'Хочу все и сразу!':
-                TASK_14.get_task(message.chat.id, 'all')
-            else:
-                bot.send_message(message.chat.id, 'I don\'t understand you...')
+        elif USERid_MODE[message.chat.id][0] in ['#2', '#7', '#9', '#14']:
+            choose_mode(message.chat.id, USERid_MODE[message.chat.id][0], message.text)
         else:
             bot.send_message(message.chat.id, 'I don\'t understand you...')
     except Exception as e:
@@ -159,9 +120,10 @@ def callback_inline(call):
 
                 if USERid_MODE[call.message.chat.id][0] == '#7':
                     TASK_7.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
+                elif USERid_MODE[call.message.chat.id][0] == '#9':
+                    TASK_9.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
                 elif USERid_MODE[call.message.chat.id][0] == '#14':
                     TASK_14.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
-
             elif call.data != USERid_ANSWER[call.message.chat.id]:
                 bot.edit_message_text(
                     chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -183,6 +145,63 @@ def callback_inline(call):
     except Exception as e:
         print(repr(e))
         welcome(call.message)
+
+
+# Send task main menu and set mode
+def go2task_main_menu(chat_id, task_num):
+    unique_menu_options = {
+        '#2': ['Частицы', 'Местоимения'],
+        '#7': ['Множественное число', 'Склонение числительных', 'Глагольные формы'],
+        '#9': ['Слово - тип']
+    }
+    items = []
+    if task_num in unique_menu_options.keys():
+        for item in unique_menu_options[task_num]:
+            items.append(item)
+    if task_num in ['#2', '#7', '#14']:
+        items.append('Хочу все и сразу!')
+    items.append('Верните назад!')
+
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    for item in items:
+        markup.add(item)
+
+    USERid_MODE[chat_id][0] = task_num
+
+    bot.send_message(chat_id, 'Круто, выбери тему из списка ниже:', reply_markup=markup)
+
+
+def choose_mode(chat_id, task_num, task_mode):
+    modes = {
+        '#2': {
+            'Частицы': 'particles',
+            'Местоимения': 'pronouns',
+            'Хочу все и сразу!': 'all'
+        },
+        '#7': {
+            'Множественное число': 'plural',
+            'Склонение числительных': 'numerals',
+            'Глагольные формы': 'verbs',
+            'Хочу все и сразу!': 'all'
+        },
+        '#9': {
+            'Слово - тип': 'word_type'
+        },
+        '#14': {
+            'Хочу все и сразу!': 'all'
+        }
+    }
+    if task_mode in modes[task_num].keys():
+        if task_num == '#2':
+            TASK_2.get_task(chat_id, modes[task_num][task_mode])
+        elif task_num == '#7':
+            TASK_7.get_task(chat_id, modes[task_num][task_mode])
+        elif task_num == '#9':
+            TASK_9.get_task(chat_id, modes[task_num][task_mode])
+        elif task_num == '#14':
+            TASK_14.get_task(chat_id, modes[task_num][task_mode])
+    else:
+        bot.send_message(chat_id, 'I don\'t understand you...')
 
 
 class Task2:
@@ -226,7 +245,7 @@ class Task2:
     def get_particles(self, chat_id):
         global USERid_ANSWER
 
-        question_id = random.randint(0, len(self.particles) - 1)
+        question_id = randint(0, len(self.particles) - 1)
         question = self.particles[question_id][0]
 
         USERid_ANSWER[chat_id] = self.particles[question_id][1:]
@@ -268,12 +287,49 @@ class Task7:
     def get_plural(self, chat_id):
         global USERid_ANSWER
 
-        question_id = random.randint(0, len(self.plural))
+        question_id = randint(0, len(self.plural))
         question = self.plural[question_id][0]
-        rand = random.randint(1, 2)
+        rand = randint(1, 2)
         items = [self.plural[question_id][rand], self.plural[question_id][3 - rand]]
 
         USERid_ANSWER[chat_id] = self.plural[question_id][1]
+        return question, items
+
+
+class Task9:
+    def __init__(self):
+        # TODO: class Task9
+        self.check = load_data('data/task9_check.txt', ' ')
+        self.dict = load_data('data/task9_dict.txt', ' ')
+        self.alternation = load_data('data/task9_alternation.txt', ' ')
+
+    def get_task(self, chat_id, mode):
+        if mode == 'word_type':
+            question, items = self.get_word_type(chat_id)
+        else:
+            return "No such type recognized!" + mode
+        USERid_MODE[chat_id][1] = mode
+        markup = types.InlineKeyboardMarkup()
+        for item in items:
+            markup.add(types.InlineKeyboardButton(item, callback_data=item))
+        bot.send_message(chat_id, question, reply_markup=markup)
+
+    def get_word_type(self, chat_id):
+        global USERid_ANSWER
+        type = randint(0, 2)
+        if type == 0:
+            word_id = randint(0, len(self.check) - 1)
+            question = self.check[word_id]
+        elif type == 1:
+            word_id = randint(0, len(self.dict) - 1)
+            question = self.dict[word_id]
+        elif type == 2:
+            word_id = randint(0, len(self.alternation) - 1)
+            question = self.alternation[word_id]
+
+        items = ['Проверяем', 'Не проверяем', 'Чередуем']
+
+        USERid_ANSWER[chat_id] = items[type]
         return question, items
 
 
@@ -294,7 +350,7 @@ class Task14:
 
     def get_all(self, chat_id):
         global USERid_ANSWER
-        word_id = random.randint(0, len(self.words) - 1)
+        word_id = randint(0, len(self.words) - 1)
         temp = self.words[word_id][0].split(' ')
         question = '(' + temp[0] + ')' + temp[1]
         tail = ''
@@ -326,12 +382,14 @@ def load_data(way, split_char=' '):
         return data
 
 
-USERid_ANSWER = {}  # {user_id: 'answer'}
-USERid_MODE = {}  # {user_id: ['main mode', 'submode']}
-
 # Run
 if __name__ == "__main__":
     TASK_2 = Task2()
     TASK_7 = Task7()
+    TASK_9 = Task9()
     TASK_14 = Task14()
+
+    USERid_ANSWER = {}  # {user_id: 'answer'}
+    USERid_MODE = {}  # {user_id: ['main mode', 'submode']}
+
     bot.polling(none_stop=True)
