@@ -65,6 +65,9 @@ def manual(message):
     bot.send_message(message.chat.id, 'Здесь могла быть ваша реклама, но админ пока что не сделал такую фичу :)', reply_markup=markup)
 
 
+# TODO /thanks
+
+
 @bot.message_handler(content_types=['text'])
 def lalala(message):
     global USERid_MODE
@@ -75,13 +78,13 @@ def lalala(message):
             welcome(message)
             return
         if not USERid_MODE[message.chat.id][0]:
-            if message.text in ['#2', '#7', '#9', '#14']:
+            if message.text in ['#2', '#7', '#9', '#10', '#14']:
                 go2task_main_menu(message.chat.id, message.text)
-            elif message.text in ['#1', '#3', '#4', '#5', '#6', '#8', '#10', '#11', '#12', '#13', '#15', '#16', '#17', '#18', '#19', '#20', '#21', '#22', '#23', '#24', '#25', '#26', '#27']:
+            elif message.text in ['#1', '#3', '#4', '#5', '#6', '#8', '#11', '#12', '#13', '#15', '#16', '#17', '#18', '#19', '#20', '#21', '#22', '#23', '#24', '#25', '#26', '#27']:
                 bot.send_message(message.chat.id, 'Этот режим еще в разработке :)')
             else:
                 bot.send_message(message.chat.id, 'I don\'t understand you...')
-        elif USERid_MODE[message.chat.id][0] in ['#2', '#7', '#9', '#14']:
+        elif USERid_MODE[message.chat.id][0] in ['#2', '#7', '#9', '#10', '#14']:
             choose_mode(message.chat.id, USERid_MODE[message.chat.id][0], message.text)
         else:
             bot.send_message(message.chat.id, 'I don\'t understand you...')
@@ -122,6 +125,8 @@ def callback_inline(call):
                     TASK_7.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
                 elif USERid_MODE[call.message.chat.id][0] == '#9':
                     TASK_9.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
+                elif USERid_MODE[call.message.chat.id][0] == '#10':
+                    TASK_10.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
                 elif USERid_MODE[call.message.chat.id][0] == '#14':
                     TASK_14.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
             elif call.data != USERid_ANSWER[call.message.chat.id]:
@@ -142,6 +147,8 @@ def callback_inline(call):
                     TASK_7.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
                 elif USERid_MODE[call.message.chat.id][0] == '#9':
                     TASK_9.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
+                elif USERid_MODE[call.message.chat.id][0] == '#10':
+                    TASK_10.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
                 elif USERid_MODE[call.message.chat.id][0] == '#14':
                     TASK_14.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
     except Exception as e:
@@ -154,13 +161,14 @@ def go2task_main_menu(chat_id, task_num):
     unique_menu_options = {
         '#2': ['Частицы', 'Местоимения'],
         '#7': ['Множественное число', 'Склонение числительных', 'Глагольные формы'],
-        '#9': ['Слово - тип']
+        '#9': ['Слово - тип'],
+        '#10': ['Пре-При', 'С-З', 'И-Ы', 'Ъ-Ь-×']
     }
     items = []
     if task_num in unique_menu_options.keys():
         for item in unique_menu_options[task_num]:
             items.append(item)
-    if task_num in ['#2', '#7', '#14']:
+    if task_num in ['#2', '#7', '#10', '#14']:
         items.append('Хочу все и сразу!')
     items.append('Верните назад!')
 
@@ -189,6 +197,13 @@ def choose_mode(chat_id, task_num, task_mode):
         '#9': {
             'Слово - тип': 'word_type'
         },
+        '#10': {
+            'Пре-При': 'pre_pri',
+            'С-З': 's_z',
+            'И-Ы': 'i_y',
+            'Ъ-Ь-×': 'sign',
+            'Хочу все и сразу!': 'all'
+        },
         '#14': {
             'Хочу все и сразу!': 'all'
         }
@@ -200,6 +215,8 @@ def choose_mode(chat_id, task_num, task_mode):
             TASK_7.get_task(chat_id, modes[task_num][task_mode])
         elif task_num == '#9':
             TASK_9.get_task(chat_id, modes[task_num][task_mode])
+        elif task_num == '#10':
+            TASK_10.get_task(chat_id, modes[task_num][task_mode])
         elif task_num == '#14':
             TASK_14.get_task(chat_id, modes[task_num][task_mode])
     else:
@@ -220,18 +237,18 @@ class Task2:
             ['СМЯГЧЕНИЕ', '-КА']
         ]
         # self.pronouns = [['type', '*pronouns']]
-        # TODO: self.pronouns = []
+        # TODO: task2 self.pronouns = []
 
     def get_task(self, chat_id, mode):
         global USERid_MODE
         if mode == 'particles':
             question = self.get_particles(chat_id)
         elif mode == 'pronouns':
-            # TODO: self.get_pronouns()
+            # TODO: task2 self.get_pronouns()
             bot.send_message(chat_id, 'Этот режим еще в разработке :)')
             return
         elif mode == 'all':
-            # TODO: self.get_all()
+            # TODO: task2 self.get_all()
             bot.send_message(chat_id, 'Этот режим еще в разработке :)')
             return
         else:
@@ -256,24 +273,25 @@ class Task2:
 
 class Task7:
     def __init__(self):
-        self.plural = load_data('data/task7_plural.txt')  # [['question', 'right_answer', 'false_answer']]
-        # TODO: self.numerals
-        # TODO: self.verbs
+        data = get_task_data('#7')
+        self.plural = data['plural']
+        self.numerals = data['numerals']
+        self.verbs = data['verbs']
 
     def get_task(self, chat_id, mode):
         global USERid_MODE
         if mode == 'plural':
             question, items = self.get_plural(chat_id)
         elif mode == 'numerals':
-            # TODO: self.get_numerals()
+            # TODO: task7 self.get_numerals()
             bot.send_message(chat_id, 'Этот режим еще в разработке :)')
             return
         elif mode == 'verbs':
-            # TODO: self.get_verbs()
+            # TODO: task7 self.get_verbs()
             bot.send_message(chat_id, 'Этот режим еще в разработке :)')
             return
         elif mode == 'all':
-            # TODO: self.get_all()
+            # TODO: task7 self.get_all()
             bot.send_message(chat_id, 'Этот режим еще в разработке :)')
             return
         else:
@@ -300,10 +318,10 @@ class Task7:
 
 class Task9:
     def __init__(self):
-        # TODO: class Task9
-        self.check = load_data('data/task9_check.txt', ' ')
-        self.dict = load_data('data/task9_dict.txt', ' ')
-        self.alternation = load_data('data/task9_alternation.txt', ' ')
+        data = get_task_data('#9')
+        self.check = data['check']
+        self.dict = data['dict']
+        self.alternation = data['alternation']
 
     def get_task(self, chat_id, mode):
         if mode == 'word_type':
@@ -335,9 +353,127 @@ class Task9:
         return question, items
 
 
+class Task10:
+    def __init__(self):
+        data = get_task_data('#10')
+        self.pre = data['pre']
+        self.pri = data['pri']
+        self.s = data['s']
+        self.z = data['z']
+        self.i = data['i']
+        self.y = data['y']
+        self.hard_sign = data['hard_sign']
+        self.soft_sign = data['soft_sign']
+        self.no_sign = data['no_sign']
+
+    def get_task(self, chat_id, mode):
+        if mode == 'pre_pri':
+            question, items = self.get_pre_pri(chat_id)
+        elif mode == 's_z':
+            question, items = self.get_s_z(chat_id)
+        elif mode == 'i_y':
+            question, items = self.get_i_y(chat_id)
+        elif mode == 'sign':
+            question, items = self.get_sign(chat_id)
+        elif mode == 'all':
+            question, items = self.get_all(chat_id)
+        else:
+            return "No such type recognized!" + mode
+        USERid_MODE[chat_id][1] = mode
+        markup = types.InlineKeyboardMarkup()
+        if mode != 'sign':
+            markup.add(
+                types.InlineKeyboardButton(items[0], callback_data=items[0]),
+                types.InlineKeyboardButton(items[1], callback_data=items[1])
+            )
+        else:
+            markup.add(
+                types.InlineKeyboardButton(items[0], callback_data=items[0]),
+                types.InlineKeyboardButton(items[1], callback_data=items[1]),
+                types.InlineKeyboardButton(items[2], callback_data=items[2])
+            )
+        bot.send_message(chat_id, question, reply_markup=markup)
+
+    def get_pre_pri(self, chat_id):
+        global USERid_ANSWER
+        type = randint(0, 1)
+        if type == 0:
+            word_id = randint(0, len(self.pre) - 1)
+            question = self.pre[word_id]
+        elif type == 1:
+            word_id = randint(0, len(self.pri) - 1)
+            question = self.pri[word_id]
+
+        items = ['Е', 'И']
+
+        USERid_ANSWER[chat_id] = items[type]
+        return question, items
+
+    def get_s_z(self, chat_id):
+        global USERid_ANSWER
+        type = randint(0, 1)
+        if type == 0:
+            word_id = randint(0, len(self.s) - 1)
+            question = self.s[word_id]
+        elif type == 1:
+            word_id = randint(0, len(self.z) - 1)
+            question = self.z[word_id]
+
+        items = ['С', 'З']
+
+        USERid_ANSWER[chat_id] = items[type]
+        return question, items
+
+    def get_i_y(self, chat_id):
+        global USERid_ANSWER
+        type = randint(0, 1)
+        if type == 0:
+            word_id = randint(0, len(self.i) - 1)
+            question = self.i[word_id]
+        elif type == 1:
+            word_id = randint(0, len(self.y) - 1)
+            question = self.y[word_id]
+
+        items = ['И', 'Ы']
+
+        USERid_ANSWER[chat_id] = items[type]
+        return question, items
+
+    def get_sign(self, chat_id):
+        global USERid_ANSWER
+        type = randint(0, 2)
+        if type == 0:
+            word_id = randint(0, len(self.hard_sign) - 1)
+            question = self.hard_sign[word_id]
+        elif type == 1:
+            word_id = randint(0, len(self.soft_sign) - 1)
+            question = self.soft_sign[word_id]
+        elif type == 2:
+            word_id = randint(0, len(self.no_sign) - 1)
+            question = self.no_sign[word_id]
+
+        items = ['Ъ', 'Ь', '×']
+
+        USERid_ANSWER[chat_id] = items[type]
+        return question, items
+
+    def get_all(self, chat_id):
+        # TODO: change int to str
+        mode = randint(0, 3)
+        if mode == 0:
+            return self.get_pre_pri(chat_id)
+        elif mode == 1:
+            return self.get_s_z(chat_id)
+        elif mode == 2:
+            return self.get_i_y(chat_id)
+        elif mode == 3:
+            return self.get_sign(chat_id)
+
+
 class Task14:
     def __init__(self):
-        self.words = load_data('data/task14.txt', '|')
+        self.words = get_task_data('#14')['words']
+        print(self.words)
 
     def get_task(self, chat_id, mode):
         if mode == 'all':
@@ -375,13 +511,55 @@ class Task14:
         return question, items
 
 
-def load_data(way, split_char=' '):
-    with open(way, encoding='utf-8') as file:
-        data = []
+def get_task_data(task_num):
+    def __file2list(file, split_c):
+        list = []
         for line in file.readlines():
-            data.append(line.split(split_char))
-            data[-1][-1] = data[-1][-1].replace('\n', '')
-        return data
+            list.append(line.split(split_c))
+            list[-1][-1] = list[-1][-1].replace('\n', '')
+        return list
+
+    data = {}
+    if task_num == '#7':
+        data['numerals'] = None
+        data['verbs'] = None
+
+        with open('data/task7_plural.txt', encoding='utf-8') as file:
+            data['plural'] = __file2list(file, ' ')
+        # TODO: open data/task7_numerals
+        # TODO: open data/task7_verbs
+    elif task_num == '#9':
+        with open('data/task9_check.txt', encoding='utf-8') as file:
+            data['check'] = __file2list(file, ' ')
+        with open('data/task9_dict.txt', encoding='utf-8') as file:
+            data['dict'] = __file2list(file, ' ')
+        with open('data/task9_alternation.txt', encoding='utf-8') as file:
+            data['alternation'] = __file2list(file, ' ')
+    elif task_num == '#10':
+        with open('data/task10_pre.txt', encoding='utf-8') as file:
+            data['pre'] = __file2list(file, '/')
+        with open('data/task10_pri.txt', encoding='utf-8') as file:
+            data['pri'] = __file2list(file, '/')
+        with open('data/task10_s.txt', encoding='utf-8') as file:
+            data['s'] = __file2list(file, '/')
+        with open('data/task10_z.txt', encoding='utf-8') as file:
+            data['z'] = __file2list(file, '/')
+        with open('data/task10_i.txt', encoding='utf-8') as file:
+            data['i'] = __file2list(file, '/')
+        with open('data/task10_y.txt', encoding='utf-8') as file:
+            data['y'] = __file2list(file, '/')
+        with open('data/task10_hard_sign.txt', encoding='utf-8') as file:
+            data['hard_sign'] = __file2list(file, '/')
+        with open('data/task10_soft_sign.txt', encoding='utf-8') as file:
+            data['soft_sign'] = __file2list(file, '/')
+        with open('data/task10_no_sign.txt', encoding='utf-8') as file:
+            data['no_sign'] = __file2list(file, '/')
+    elif task_num == '#14':
+        with open('data/task14.txt', encoding='utf-8') as file:
+            data['words'] = __file2list(file, '|')
+    else:
+        return
+    return data
 
 
 # Run
@@ -389,6 +567,7 @@ if __name__ == "__main__":
     TASK_2 = Task2()
     TASK_7 = Task7()
     TASK_9 = Task9()
+    TASK_10 = Task10()
     TASK_14 = Task14()
 
     USERid_ANSWER = {}  # {user_id: 'answer'}
