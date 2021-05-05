@@ -11,11 +11,11 @@ bot = telebot.TeleBot(config.TOKEN)
 
 @bot.message_handler(commands=['start'])
 def welcome(message):
-    global USERid_MODE
+    global USERid_MODE, USERid_STICKERPACK
+    if not message.chat.id in USERid_STICKERPACK.keys():
+        update_user_stickerpack(message.chat.id, 'animated_text')
     USERid_MODE[message.chat.id] = [None, None]
-    sti = open('stickers/animated_text/hi.tgs', 'rb')
-    bot.send_sticker(message.chat.id, sti)
-
+    send_sticker(message.chat.id, 'hi')
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     items = [
         types.KeyboardButton('#2'),
@@ -52,17 +52,59 @@ def manual(message):
 
 
 @bot.message_handler(commands=['support'])
-def manual(message):
+def support(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton('Верните назад!'))
     bot.send_message(message.chat.id, 'Здесь могла быть ваша реклама, но пока что техподдержки тут нема :)', reply_markup=markup)
 
 
-@bot.message_handler(commands=['set_stickerpack'])
-def manual(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton('Верните назад!'))
-    bot.send_message(message.chat.id, 'Здесь могла быть ваша реклама, но админ пока что не сделал такую фичу :)', reply_markup=markup)
+@bot.message_handler(commands=['stickerpack'])
+def stickerpack(message):
+    command = message.text.split()
+    if len(command) == 1:
+        bot.send_message(message.chat.id, 'Добро пожаловать в настройки стикерпака.\n\n'
+                                          '/stickerpack remove - убрать стикеры;\n'
+                                          '/stickerpack show X - показать стикеры под номером X\n'
+                                          '/stickerpack set X - установить cтикеры под номером Х\n\n'
+                                          'Сейчас доступны следующие наборы:\n'
+                                          '1 - Animated Text\n'
+                                          '2 - Lady Noir')
+    elif command[1] == 'remove':
+        update_user_stickerpack(message.chat.id, 'none')
+        welcome(message)
+    elif command[1] == 'show':
+        if len(command) < 3:
+            bot.send_message(message.chat.id, 'Прости, какие стикеры?')
+            return
+        if command[2] == '1':
+            sti = open('stickers/animated_text/hi.tgs', 'rb')
+            bot.send_sticker(message.chat.id, sti)
+            sti = open('stickers/animated_text/yes.tgs', 'rb')
+            bot.send_sticker(message.chat.id, sti)
+            sti = open('stickers/animated_text/no.tgs', 'rb')
+            bot.send_sticker(message.chat.id, sti)
+        elif command[2] == '2':
+            sti = open('stickers/lady_noir/hi.tgs', 'rb')
+            bot.send_sticker(message.chat.id, sti)
+            sti = open('stickers/lady_noir/yes.tgs', 'rb')
+            bot.send_sticker(message.chat.id, sti)
+            sti = open('stickers/lady_noir/no.tgs', 'rb')
+            bot.send_sticker(message.chat.id, sti)
+        else:
+            bot.send_message(message.chat.id, 'Таких стикеров не завезли')
+    elif command[1] == 'set':
+        if len(command) < 3:
+            bot.send_message(message.chat.id, 'Прости, какие стикеры?')
+            return
+        if command[2] == '1':
+            update_user_stickerpack(message.chat.id, 'animated_text')
+        elif command[2] == '2':
+            update_user_stickerpack(message.chat.id, 'lady_noir')
+        else:
+            bot.send_message(message.chat.id, 'Таких стикеров не завезли')
+        welcome(message)
+    else:
+        bot.send_message(message.chat.id, 'О таком приличных ботов не просят!')
 
 
 # TODO /thanks
@@ -116,8 +158,7 @@ def callback_inline(call):
                     chat_id=call.message.chat.id, message_id=call.message.message_id,
                     text=call.message.text, reply_markup=None
                 )
-                sti = open('stickers/animated_text/yes.tgs', 'rb')
-                bot.send_sticker(call.message.chat.id, sti)
+                send_sticker(call.message.chat.id, 'yes')
                 bot.send_message(
                     call.message.chat.id,
                     '✅ Cool! Правильный ответ: ' + USERid_ANSWER[call.message.chat.id]
@@ -136,8 +177,7 @@ def callback_inline(call):
                     chat_id=call.message.chat.id, message_id=call.message.message_id,
                     text=call.message.text, reply_markup=None
                 )
-                sti = open('stickers/animated_text/no.tgs', 'rb')
-                bot.send_sticker(call.message.chat.id, sti)
+                send_sticker(call.message.chat.id, 'no')
                 bot.send_message(
                     call.message.chat.id,
                     '❌ Oh... Твой ответ был: ' + call.data +
@@ -563,6 +603,33 @@ def get_task_data(task_num):
     return data
 
 
+def get_user_stickerpack():
+    data = {}
+    with open('data/user_stickerpack.txt') as file:
+        for line in file.readlines():
+            line = line.split()
+            data[int(line[0])] = line[1]
+    return data
+
+
+def update_user_stickerpack(chat_id, stickerpack):
+    global USERid_STICKERPACK
+    USERid_STICKERPACK[chat_id] = stickerpack
+    with open('data/user_stickerpack.txt', 'w') as file:
+        for key in USERid_STICKERPACK.keys():
+            string = str(key) + ' ' + USERid_STICKERPACK[key]
+            file.write(string)
+
+
+def send_sticker(chat_id, type):
+    global USERid_STICKERPACK
+    if USERid_STICKERPACK[chat_id] == 'none':
+        return
+    way2sticker = 'stickers/' + USERid_STICKERPACK[chat_id] + '/' + type + '.tgs'
+    sti = open(way2sticker, 'rb')
+    bot.send_sticker(chat_id, sti)
+
+
 # Run
 if __name__ == "__main__":
     TASK_2 = Task2()
@@ -573,5 +640,6 @@ if __name__ == "__main__":
 
     USERid_ANSWER = {}  # {user_id: 'answer'}
     USERid_MODE = {}  # {user_id: ['main mode', 'submode']}
+    USERid_STICKERPACK = get_user_stickerpack()
 
     bot.polling(none_stop=True)
