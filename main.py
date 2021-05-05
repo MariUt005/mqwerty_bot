@@ -84,6 +84,8 @@ def lalala(message):
                 bot.send_message(message.chat.id, 'Этот режим еще в разработке :)')
             else:
                 bot.send_message(message.chat.id, 'I don\'t understand you...')
+        elif USERid_MODE[message.chat.id][0] == '#2' and USERid_MODE[message.chat.id][1]:
+            return
         elif USERid_MODE[message.chat.id][0] in ['#2', '#7', '#9', '#10', '#14']:
             choose_mode(message.chat.id, USERid_MODE[message.chat.id][0], message.text)
         else:
@@ -473,7 +475,6 @@ class Task10:
 class Task14:
     def __init__(self):
         self.words = get_task_data('#14')['words']
-        print(self.words)
 
     def get_task(self, chat_id, mode):
         if mode == 'all':
