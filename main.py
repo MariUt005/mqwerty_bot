@@ -69,7 +69,7 @@ def manual(message):
 def support(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton('Верните назад!'))
-    bot.send_message(message.chat.id, 'Здесь могла быть ваша реклама, но пока что техподдержки тут нема :)', reply_markup=markup)
+    bot.send_message(message.chat.id, 'Здесь могла быть ваша реклама, но пока что техподдержки тут нема :) ', reply_markup=markup)
 
 
 @bot.message_handler(commands=['stickerpack'])
