@@ -447,12 +447,12 @@ class Task10:
             return "No such type recognized!" + mode
         USERid_MODE[chat_id][1] = mode
         markup = types.InlineKeyboardMarkup()
-        if mode != 'sign':
+        if len(items) == 2:
             markup.add(
                 types.InlineKeyboardButton(items[0], callback_data=items[0]),
                 types.InlineKeyboardButton(items[1], callback_data=items[1])
             )
-        else:
+        elif len(items) == 3:
             markup.add(
                 types.InlineKeyboardButton(items[0], callback_data=items[0]),
                 types.InlineKeyboardButton(items[1], callback_data=items[1]),
