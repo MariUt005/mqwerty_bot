@@ -631,8 +631,9 @@ def get_user_stickerpack():
     data = {}
     with open('data/user_stickerpack.txt') as file:
         for line in file.readlines():
-            line = line.split()
-            data[int(line[0])] = line[1]
+            if line:
+                line = line.split()
+                data[int(line[0])] = line[1]
     return data
 
 
@@ -641,7 +642,7 @@ def update_user_stickerpack(chat_id, stickerpack):
     USERid_STICKERPACK[chat_id] = stickerpack
     with open('data/user_stickerpack.txt', 'w') as file:
         for key in USERid_STICKERPACK.keys():
-            string = str(key) + ' ' + USERid_STICKERPACK[key]
+            string = str(key) + ' ' + USERid_STICKERPACK[key] + '\n'
             file.write(string)
 
 
