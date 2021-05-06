@@ -1,6 +1,7 @@
 # pyTelegramBotAPI needed
 import telebot
 import config
+from os.path import exists
 from random import randint
 from telebot import types
 
@@ -44,6 +45,19 @@ def welcome(message):
     )
 
 
+@bot.message_handler(commands=['test'])
+def test(message):
+    markup = types.InlineKeyboardMarkup()
+    markup.add(
+        types.InlineKeyboardButton('1', callback_data='None'),
+        types.InlineKeyboardButton('2', callback_data='None'),
+        types.InlineKeyboardButton('3', callback_data='None'),
+        types.InlineKeyboardButton('4', callback_data='None'),
+        types.InlineKeyboardButton('5', callback_data='None')
+    )
+    bot.send_message(message.chat.id, 'Напиши админу, какая кнопка крайняя :3', reply_markup=markup)
+
+
 @bot.message_handler(commands=['manual'])
 def manual(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -68,7 +82,8 @@ def stickerpack(message):
                                           '/stickerpack set X - установить cтикеры под номером Х\n\n'
                                           'Сейчас доступны следующие наборы:\n'
                                           '1 - Animated Text\n'
-                                          '2 - Lady Noir')
+                                          '2 - Lady Noir\n'
+                                          '3 - Toads')
     elif command[1] == 'remove':
         update_user_stickerpack(message.chat.id, 'none')
         welcome(message)
@@ -90,6 +105,13 @@ def stickerpack(message):
             bot.send_sticker(message.chat.id, sti)
             sti = open('stickers/lady_noir/no.tgs', 'rb')
             bot.send_sticker(message.chat.id, sti)
+        elif command[2] == '3':
+            sti = open('stickers/toads/hi.webp', 'rb')
+            bot.send_sticker(message.chat.id, sti)
+            sti = open('stickers/toads/yes.webp', 'rb')
+            bot.send_sticker(message.chat.id, sti)
+            sti = open('stickers/toads/no.webp', 'rb')
+            bot.send_sticker(message.chat.id, sti)
         else:
             bot.send_message(message.chat.id, 'Таких стикеров не завезли')
     elif command[1] == 'set':
@@ -100,6 +122,8 @@ def stickerpack(message):
             update_user_stickerpack(message.chat.id, 'animated_text')
         elif command[2] == '2':
             update_user_stickerpack(message.chat.id, 'lady_noir')
+        elif command[2] == '3':
+            update_user_stickerpack(message.chat.id, 'toads')
         else:
             bot.send_message(message.chat.id, 'Таких стикеров не завезли')
         welcome(message)
@@ -626,6 +650,8 @@ def send_sticker(chat_id, type):
     if USERid_STICKERPACK[chat_id] == 'none':
         return
     way2sticker = 'stickers/' + USERid_STICKERPACK[chat_id] + '/' + type + '.tgs'
+    if not exists(way2sticker):
+        way2sticker = 'stickers/' + USERid_STICKERPACK[chat_id] + '/' + type + '.webp'
     sti = open(way2sticker, 'rb')
     bot.send_sticker(chat_id, sti)
 
