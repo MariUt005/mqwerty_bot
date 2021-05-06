@@ -83,7 +83,8 @@ def stickerpack(message):
                                           'Сейчас доступны следующие наборы:\n'
                                           '1 - Animated Text\n'
                                           '2 - Lady Noir\n'
-                                          '3 - Toads')
+                                          '3 - Toads\n'
+                                          '4 - Lapenko')
     elif command[1] == 'remove':
         update_user_stickerpack(message.chat.id, 'none')
         welcome(message)
@@ -112,6 +113,13 @@ def stickerpack(message):
             bot.send_sticker(message.chat.id, sti)
             sti = open('stickers/toads/no.webp', 'rb')
             bot.send_sticker(message.chat.id, sti)
+        elif command[2] == '4':
+            sti = open('stickers/lapenko/hi.webp', 'rb')
+            bot.send_sticker(message.chat.id, sti)
+            sti = open('stickers/lapenko/yes.webp', 'rb')
+            bot.send_sticker(message.chat.id, sti)
+            sti = open('stickers/lapenko/no.webp', 'rb')
+            bot.send_sticker(message.chat.id, sti)
         else:
             bot.send_message(message.chat.id, 'Таких стикеров не завезли')
     elif command[1] == 'set':
@@ -124,6 +132,8 @@ def stickerpack(message):
             update_user_stickerpack(message.chat.id, 'lady_noir')
         elif command[2] == '3':
             update_user_stickerpack(message.chat.id, 'toads')
+        elif command[2] == '4':
+            update_user_stickerpack(message.chat.id, 'lapenko')
         else:
             bot.send_message(message.chat.id, 'Таких стикеров не завезли')
         welcome(message)
