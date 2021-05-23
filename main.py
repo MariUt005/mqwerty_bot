@@ -324,12 +324,6 @@ class Task2:
             return "No such type recognized!" + mode
         USERid_MODE[chat_id][1] = mode
 
-        if mode == 'particles':
-            question = 'Напиши все частицы со значением: <b>' + question + \
-                       '</b>\n\nПосле чего нажми на кнопку ниже\n(P.s. формат не важен)'
-        elif mode == 'pronouns':
-            question = 'Напиши все <b>' + question + '</b> местоимения.' \
-                                                     '\n\nПосле чего нажми на кнопку ниже\n(P.s. формат не важен)'
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Я всё!', callback_data='ready'))
         bot.send_message(chat_id, question, parse_mode='html', reply_markup=markup)
@@ -341,7 +335,8 @@ class Task2:
         question = self.particles[question_id][0]
 
         USERid_ANSWER[chat_id] = self.particles[question_id][1:]
-        return question
+        return 'Напиши все частицы со значением: <b>' + question + \
+               '</b>\n\nПосле чего нажми на кнопку ниже\n(P.s. формат не важен)'
 
     def get_pronouns(self, chat_id):
         global USERid_ANSWER
@@ -350,7 +345,8 @@ class Task2:
         question = self.pronouns[question_id][0]
 
         USERid_ANSWER[chat_id] = self.pronouns[question_id][1:]
-        return question
+        return 'Напиши все <b>' + question + '</b> местоимения.' \
+               '\n\nПосле чего нажми на кнопку ниже\n(P.s. формат не важен)'
 
     def get_all(self, chat_id):
         choose_mode = randint(0, 1)
