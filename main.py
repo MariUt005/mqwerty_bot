@@ -23,15 +23,11 @@ def welcome(message):
         types.KeyboardButton('#7'),
         types.KeyboardButton('#9'),
         types.KeyboardButton('#10'),
-        types.KeyboardButton('#11'),
-        types.KeyboardButton('#12'),
-        types.KeyboardButton('#13'),
         types.KeyboardButton('#14'),
         types.KeyboardButton('#15')
     ]
     markup.add(items[0], items[1], items[2])
     markup.add(items[3], items[4], items[5])
-    markup.add(items[6], items[7], items[8])
 
     hi_message = "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, бот, созданный чтобы " \
                  "<strike>быть подопытным кроликом</strike> помочь тебе с подготовкой к ЕГЭ по русскому.\n\n" \
