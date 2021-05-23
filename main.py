@@ -45,19 +45,6 @@ def welcome(message):
     )
 
 
-@bot.message_handler(commands=['test'])
-def test(message):
-    markup = types.InlineKeyboardMarkup()
-    markup.add(
-        types.InlineKeyboardButton('1', callback_data='None'),
-        types.InlineKeyboardButton('2', callback_data='None'),
-        types.InlineKeyboardButton('3', callback_data='None'),
-        types.InlineKeyboardButton('4', callback_data='None'),
-        types.InlineKeyboardButton('5', callback_data='None')
-    )
-    bot.send_message(message.chat.id, 'Напиши админу, какая кнопка крайняя :3', reply_markup=markup)
-
-
 @bot.message_handler(commands=['manual'])
 def manual(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -69,7 +56,7 @@ def manual(message):
 def support(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton('Верните назад!'))
-    bot.send_message(message.chat.id, 'Здесь могла быть ваша реклама, но пока что техподдержки тут нема :) ', reply_markup=markup)
+    bot.send_message(message.chat.id, 'Есть проблемы? Напиши админу! --> @MariUt005', reply_markup=markup)
 
 
 @bot.message_handler(commands=['stickerpack'])
