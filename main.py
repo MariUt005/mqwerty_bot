@@ -299,7 +299,17 @@ class Task2:
             ['УСИЛЕНИЕ', 'ДАЖЕ', 'ЖЕ', 'НИ', 'ВЕДЬ', 'УЖ', 'ВСЁ-ТАКИ', 'НУ', 'И'],
             ['СМЯГЧЕНИЕ', '-КА']
         ]
-        # self.pronouns = [['type', '*pronouns']]
+        self.pronouns = [
+            ['ЛИЧНЫЕ', 'Я', 'МЫ', 'ТЫ', 'ОН', 'ОНА', 'ОНО', 'ВЫ', 'ОНИ'],
+            ['ВОЗВРАТНЫЕ', 'СЕБЯ'],
+            ['ВОПРОСИТЕЛЬНЫЕ', 'КТО', 'КАКОЙ', 'ЧТО', 'ЧЕЙ', 'СКОЛЬКО', 'КАКОВ', 'КОТОРЫЙ'],
+            ['ОТНОСИТЕЛЬНЫЕ', 'КТО', 'КАКОЙ', 'ЧТО', 'ЧЕЙ', 'СКОЛЬКО', 'КАКОВ', 'КОТОРЫЙ'],
+            ['НЕОПРЕДЕЛЕННЫЕ', 'НЕКТО', 'НЕЧТО', 'НЕКОТОРЫЙ', 'НЕСКОЛЬКО', 'КОЕ-ЧТО', 'КОЕ-КТО', 'КТО-ТО', 'КТО-НИБУДЬ', 'ЧТО-НИБУДЬ', 'КАКОЙ-НИБУДЬ'],
+            ['ОТРИЦАТЕЛЬНЫЕ', 'НИКТО', 'НИЧТО', 'НИКАКОЙ', 'НИЧЕЙ', 'НЕКОГО', 'НЕЧЕГО'],
+            ['ПРИТЯЖАТЕЛЬНЫЕ', 'МОЙ', 'ТВОЙ', 'СВОЙ', 'НАШ', 'ВАШ', 'ЕГО', 'ЕЁ', 'ИХ'],
+            ['УКАЗАТЕЛЬНЫЕ', 'ТОТ', 'ЭТОТ', 'ТАКОЙ', 'ТАКОВ', 'СТОЛЬКО'],
+            ['ОПРЕДЕЛИТЕЛЬНОЕ', 'ВЕСЬ', 'ВСЯКИЙ', 'КАЖДЫЙ', 'САМ', 'САМЫЙ', 'ЛЮБОЙ', 'ИНОЙ', 'ДРУГОЙ']
+        ]
         # TODO: task2 self.pronouns = []
 
     def get_task(self, chat_id, mode):
@@ -307,19 +317,19 @@ class Task2:
         if mode == 'particles':
             question = self.get_particles(chat_id)
         elif mode == 'pronouns':
-            # TODO: task2 self.get_pronouns()
-            bot.send_message(chat_id, 'Этот режим еще в разработке :)')
-            return
+            question = self.get_pronouns(chat_id)
         elif mode == 'all':
-            # TODO: task2 self.get_all()
-            bot.send_message(chat_id, 'Этот режим еще в разработке :)')
-            return
+            question = self.get_all(chat_id)
         else:
             return "No such type recognized!" + mode
         USERid_MODE[chat_id][1] = mode
 
-        question = 'Напиши все частицы со значением: <b>' + question + \
-                   '</b>\n\nПосле чего нажми на кнопку ниже\n(P.s. формат не важен)'
+        if mode == 'particles':
+            question = 'Напиши все частицы со значением: <b>' + question + \
+                       '</b>\n\nПосле чего нажми на кнопку ниже\n(P.s. формат не важен)'
+        elif mode == 'pronouns':
+            question = 'Напиши все <b>' + question + '</b> местоимения.' \
+                                                     '\n\nПосле чего нажми на кнопку ниже\n(P.s. формат не важен)'
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Я всё!', callback_data='ready'))
         bot.send_message(chat_id, question, parse_mode='html', reply_markup=markup)
@@ -332,6 +342,22 @@ class Task2:
 
         USERid_ANSWER[chat_id] = self.particles[question_id][1:]
         return question
+
+    def get_pronouns(self, chat_id):
+        global USERid_ANSWER
+
+        question_id = randint(0, len(self.particles) - 1)
+        question = self.pronouns[question_id][0]
+
+        USERid_ANSWER[chat_id] = self.pronouns[question_id][1:]
+        return question
+
+    def get_all(self, chat_id):
+        choose_mode = randint(0, 1)
+        if choose_mode == 0:
+            return self.get_particles(chat_id)
+        elif choose_mode == 1:
+            return self.get_pronouns(chat_id)
 
 
 class Task7:
