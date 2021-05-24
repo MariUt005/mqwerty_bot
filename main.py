@@ -137,15 +137,15 @@ def lalala(message):
             welcome(message)
             return
         if not USERid_MODE[message.chat.id][0]:
-            if message.text in ['#2', '#7', '#9', '#10', '#14']:
+            if message.text in ['#2', '#7', '#9', '#10', '#14', '#15']:
                 go2task_main_menu(message.chat.id, message.text)
-            elif message.text in ['#1', '#3', '#4', '#5', '#6', '#8', '#11', '#12', '#13', '#15', '#16', '#17', '#18', '#19', '#20', '#21', '#22', '#23', '#24', '#25', '#26', '#27']:
+            elif message.text in ['#1', '#3', '#4', '#5', '#6', '#8', '#11', '#12', '#13', '#16', '#17', '#18', '#19', '#20', '#21', '#22', '#23', '#24', '#25', '#26', '#27']:
                 bot.send_message(message.chat.id, 'Этот режим еще в разработке :)')
             else:
                 bot.send_message(message.chat.id, 'I don\'t understand you...')
         elif USERid_MODE[message.chat.id][0] == '#2' and USERid_MODE[message.chat.id][1]:
             return
-        elif USERid_MODE[message.chat.id][0] in ['#2', '#7', '#9', '#10', '#14']:
+        elif USERid_MODE[message.chat.id][0] in ['#2', '#7', '#9', '#10', '#14', '#15']:
             choose_mode(message.chat.id, USERid_MODE[message.chat.id][0], message.text)
         else:
             bot.send_message(message.chat.id, 'I don\'t understand you...')
@@ -189,6 +189,8 @@ def callback_inline(call):
                     TASK_10.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
                 elif USERid_MODE[call.message.chat.id][0] == '#14':
                     TASK_14.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
+                elif USERid_MODE[call.message.chat.id][0] == '#15':
+                    TASK_15.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
             elif call.data != USERid_ANSWER[call.message.chat.id]:
                 bot.edit_message_text(
                     chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -210,6 +212,8 @@ def callback_inline(call):
                     TASK_10.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
                 elif USERid_MODE[call.message.chat.id][0] == '#14':
                     TASK_14.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
+                elif USERid_MODE[call.message.chat.id][0] == '#15':
+                    TASK_15.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
     except Exception as e:
         print(repr(e))
         welcome(call.message)
@@ -227,7 +231,7 @@ def go2task_main_menu(chat_id, task_num):
     if task_num in unique_menu_options.keys():
         for item in unique_menu_options[task_num]:
             items.append(item)
-    if task_num in ['#2', '#7', '#10', '#14']:
+    if task_num in ['#2', '#7', '#10', '#14', '#15']:
         items.append('Хочу все и сразу!')
     items.append('Верните назад!')
 
@@ -265,6 +269,9 @@ def choose_mode(chat_id, task_num, task_mode):
         },
         '#14': {
             'Хочу все и сразу!': 'all'
+        },
+        '#15': {
+            'Хочу все и сразу!': 'all'
         }
     }
     if task_mode in modes[task_num].keys():
@@ -278,6 +285,8 @@ def choose_mode(chat_id, task_num, task_mode):
             TASK_10.get_task(chat_id, modes[task_num][task_mode])
         elif task_num == '#14':
             TASK_14.get_task(chat_id, modes[task_num][task_mode])
+        elif task_num == '#15':
+            TASK_15.get_task(chat_id, modes[task_num][task_mode])
     else:
         bot.send_message(chat_id, 'I don\'t understand you...')
 
@@ -591,6 +600,40 @@ class Task14:
         return question, items
 
 
+class Task15:
+    def __init__(self):
+        data = get_task_data('#15')
+        self.n = data['n']
+        self.nn = data['nn']
+
+    def get_task(self, chat_id, mode):
+        if mode == 'all':
+            question, items = self.get_all(chat_id)
+        else:
+            return "No such type recognized!" + mode
+        USERid_MODE[chat_id][1] = mode
+        markup = types.InlineKeyboardMarkup()
+        markup.add(
+            types.InlineKeyboardButton(items[0], callback_data=items[0]),
+            types.InlineKeyboardButton(items[1], callback_data=items[1])
+        )
+        bot.send_message(chat_id, question, reply_markup=markup)
+
+    def get_all(self, chat_id):
+        global USERid_ANSWER
+        choose_n_nn = randint(1, 2)
+        if choose_n_nn == 1:
+            word_id = randint(0, len(self.n) - 1)
+            question = self.n[word_id]
+            USERid_ANSWER[chat_id] = 'Н'
+        elif choose_n_nn == 2:
+            word_id = randint(0, len(self.nn) - 1)
+            question = self.nn[word_id]
+            USERid_ANSWER[chat_id] = 'НН'
+        items = ['Н', 'НН']
+        return question, items
+
+
 def get_task_data(task_num):
     def __file2list(file, split_c):
         list = []
@@ -637,6 +680,11 @@ def get_task_data(task_num):
     elif task_num == '#14':
         with open('data/task14.txt', encoding='utf-8') as file:
             data['words'] = __file2list(file, '|')
+    elif task_num == '#15':
+        with open('data/task15_n.txt', encoding='utf-8') as file:
+            data['n'] = __file2list(file, ' ')
+        with open('data/task15_nn.txt', encoding='utf-8') as file:
+            data['nn'] = __file2list(file, ' ')
     else:
         return
     return data
@@ -679,6 +727,7 @@ if __name__ == "__main__":
     TASK_9 = Task9()
     TASK_10 = Task10()
     TASK_14 = Task14()
+    TASK_15 = Task15()
 
     USERid_ANSWER = {}  # {user_id: 'answer'}
     USERid_MODE = {}  # {user_id: ['main mode', 'submode']}
