@@ -3,6 +3,7 @@ import telebot
 import config
 from os.path import exists
 from random import randint
+from random import choice
 from telebot import types
 
 
@@ -20,6 +21,7 @@ def welcome(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     items = [
         types.KeyboardButton('#2'),
+        types.KeyboardButton('#4'),
         types.KeyboardButton('#7'),
         types.KeyboardButton('#9'),
         types.KeyboardButton('#10'),
@@ -28,10 +30,11 @@ def welcome(message):
     ]
     markup.add(items[0], items[1], items[2])
     markup.add(items[3], items[4], items[5])
+    markup.add(items[6])
 
     hi_message = "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, бот, созданный чтобы " \
                  "<strike>быть подопытным кроликом</strike> помочь тебе с подготовкой к ЕГЭ по русскому.\n\n" \
-                 "Выбирай ниже кнопку с номером, который вызывает сложности, и погнали!"
+                 "Выбирай ниже кнопку с номером, который вызывает сложности, и погнали!\n\n" \
 
     bot.send_message(
         message.chat.id,
@@ -39,13 +42,6 @@ def welcome(message):
         parse_mode='html',
         reply_markup=markup
     )
-
-
-@bot.message_handler(commands=['manual'])
-def manual(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton('Верните назад!'))
-    bot.send_message(message.chat.id, 'Здесь могла быть ваша реклама, но пока что ждем, пока админ напишет, как мной пользоваться :)', reply_markup=markup)
 
 
 @bot.message_handler(commands=['support'])
@@ -137,15 +133,15 @@ def lalala(message):
             welcome(message)
             return
         if not USERid_MODE[message.chat.id][0]:
-            if message.text in ['#2', '#7', '#9', '#10', '#14', '#15']:
+            if message.text in ['#2', '#4', '#7', '#9', '#10', '#14', '#15']:
                 go2task_main_menu(message.chat.id, message.text)
-            elif message.text in ['#1', '#3', '#4', '#5', '#6', '#8', '#11', '#12', '#13', '#16', '#17', '#18', '#19', '#20', '#21', '#22', '#23', '#24', '#25', '#26', '#27']:
+            elif message.text in ['#1', '#3', '#5', '#6', '#8', '#11', '#12', '#13', '#16', '#17', '#18', '#19', '#20', '#21', '#22', '#23', '#24', '#25', '#26', '#27']:
                 bot.send_message(message.chat.id, 'Этот режим еще в разработке :)')
             else:
                 bot.send_message(message.chat.id, 'I don\'t understand you...')
         elif USERid_MODE[message.chat.id][0] == '#2' and USERid_MODE[message.chat.id][1]:
             return
-        elif USERid_MODE[message.chat.id][0] in ['#2', '#7', '#9', '#10', '#14', '#15']:
+        elif USERid_MODE[message.chat.id][0] in ['#2', '#4', '#7', '#9', '#10', '#14', '#15']:
             choose_mode(message.chat.id, USERid_MODE[message.chat.id][0], message.text)
         else:
             bot.send_message(message.chat.id, 'I don\'t understand you...')
@@ -180,8 +176,9 @@ def callback_inline(call):
                     call.message.chat.id,
                     '✅ Cool! Правильный ответ: ' + USERid_ANSWER[call.message.chat.id]
                 )
-
-                if USERid_MODE[call.message.chat.id][0] == '#7':
+                if USERid_MODE[call.message.chat.id][0] == '#4':
+                    TASK_4.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
+                elif USERid_MODE[call.message.chat.id][0] == '#7':
                     TASK_7.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
                 elif USERid_MODE[call.message.chat.id][0] == '#9':
                     TASK_9.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
@@ -204,6 +201,8 @@ def callback_inline(call):
                     parse_mode='html'
                 )
 
+                if USERid_MODE[call.message.chat.id][0] == '#4':
+                    TASK_4.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
                 if USERid_MODE[call.message.chat.id][0] == '#7':
                     TASK_7.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
                 elif USERid_MODE[call.message.chat.id][0] == '#9':
@@ -231,7 +230,7 @@ def go2task_main_menu(chat_id, task_num):
     if task_num in unique_menu_options.keys():
         for item in unique_menu_options[task_num]:
             items.append(item)
-    if task_num in ['#2', '#7', '#10', '#14', '#15']:
+    if task_num in ['#2', '#4', '#7', '#10', '#14', '#15']:
         items.append('Хочу все и сразу!')
     items.append('Верните назад!')
 
@@ -249,6 +248,9 @@ def choose_mode(chat_id, task_num, task_mode):
         '#2': {
             'Частицы': 'particles',
             'Местоимения': 'pronouns',
+            'Хочу все и сразу!': 'all'
+        },
+        '#4': {
             'Хочу все и сразу!': 'all'
         },
         '#7': {
@@ -277,6 +279,8 @@ def choose_mode(chat_id, task_num, task_mode):
     if task_mode in modes[task_num].keys():
         if task_num == '#2':
             TASK_2.get_task(chat_id, modes[task_num][task_mode])
+        elif task_num == '#4':
+            TASK_4.get_task(chat_id, modes[task_num][task_mode])
         elif task_num == '#7':
             TASK_7.get_task(chat_id, modes[task_num][task_mode])
         elif task_num == '#9':
@@ -359,6 +363,39 @@ class Task2:
             return self.get_particles(chat_id)
         elif choose_mode == 1:
             return self.get_pronouns(chat_id)
+
+
+class Task4:
+    def __init__(self):
+        data = get_task_data('#4')
+        self.right = data['right']
+        self.false = data['false']
+
+    def get_task(self, chat_id, mode):
+        if mode == 'all':
+            question, items = self.get_all(chat_id)
+        else:
+            return "No such type recognized!" + mode
+        USERid_MODE[chat_id][1] = mode
+        markup = types.InlineKeyboardMarkup()
+        for item in items:
+            markup.add(types.InlineKeyboardButton(item, callback_data=item))
+        bot.send_message(chat_id, question, reply_markup=markup)
+
+    def get_all(self, chat_id):
+        global USERid_ANSWER
+        USERid_ANSWER[chat_id] = choice(self.false)[0]
+        items = [None for i in range(5)]
+        items[randint(0, 5)] = USERid_ANSWER[chat_id]
+        for i in range(0, 5):
+            if not items[i]:
+                false_answer = choice(self.right)[0]
+                while false_answer in items:
+                    false_answer = choice(self.right)[0]
+                items[i] = false_answer
+
+        question = 'Выбери слово, в котором неверно поставлено ударение:\n\nP.s. Задание работает в тестовом режиме, словарик маленький пока что  ¯\_(ツ)_/¯'
+        return question, items
 
 
 class Task7:
@@ -643,7 +680,12 @@ def get_task_data(task_num):
         return list
 
     data = {}
-    if task_num == '#7':
+    if task_num == '#4':
+        with open('data/task4_right.txt', encoding='utf-8') as file:
+            data['right'] = __file2list(file, ' ')
+        with open('data/task4_false.txt', encoding='utf-8') as file:
+            data['false'] = __file2list(file, ' ')
+    elif task_num == '#7':
         data['numerals'] = None
         data['verbs'] = None
 
@@ -723,6 +765,7 @@ def send_sticker(chat_id, type):
 # Run
 if __name__ == "__main__":
     TASK_2 = Task2()
+    TASK_4 = Task4()
     TASK_7 = Task7()
     TASK_9 = Task9()
     TASK_10 = Task10()
