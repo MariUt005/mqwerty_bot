@@ -146,7 +146,9 @@ def lalala(message):
         else:
             bot.send_message(message.chat.id, 'I don\'t understand you...')
     except Exception as e:
-        print(repr(e))
+        logs = open('log.txt', 'a', encoding='utf-8')
+        logs.write(repr(e) + message.text + '\n')
+        logs.close()
         welcome(message)
 
 
@@ -214,7 +216,9 @@ def callback_inline(call):
                 elif USERid_MODE[call.message.chat.id][0] == '#15':
                     TASK_15.get_task(call.message.chat.id, USERid_MODE[call.message.chat.id][1])
     except Exception as e:
-        print(repr(e))
+        logs = open('log.txt', 'a', encoding='utf-8')
+        logs.write(repr(e) + str(USERid_MODE[call.message.chat.id]) + str(USERid_ANSWER[call.message.chat.id]) + call.data + '\n')
+        logs.close()
         welcome(call.message)
 
 
@@ -319,7 +323,6 @@ class Task2:
             ['УКАЗАТЕЛЬНЫЕ', 'ТОТ', 'ЭТОТ', 'ТАКОЙ', 'ТАКОВ', 'СТОЛЬКО'],
             ['ОПРЕДЕЛИТЕЛЬНОЕ', 'ВЕСЬ', 'ВСЯКИЙ', 'КАЖДЫЙ', 'САМ', 'САМЫЙ', 'ЛЮБОЙ', 'ИНОЙ', 'ДРУГОЙ']
         ]
-        # TODO: task2 self.pronouns = []
 
     def get_task(self, chat_id, mode):
         global USERid_MODE
@@ -376,7 +379,9 @@ class Task4:
             question, items = self.get_all(chat_id)
         else:
             return "No such type recognized!" + mode
+
         USERid_MODE[chat_id][1] = mode
+
         markup = types.InlineKeyboardMarkup()
         for item in items:
             markup.add(types.InlineKeyboardButton(item, callback_data=item))
@@ -386,14 +391,13 @@ class Task4:
         global USERid_ANSWER
         USERid_ANSWER[chat_id] = choice(self.false)[0]
         items = [None for i in range(5)]
-        items[randint(0, 5)] = USERid_ANSWER[chat_id]
+        items[randint(0, 4)] = USERid_ANSWER[chat_id]
         for i in range(0, 5):
             if not items[i]:
                 false_answer = choice(self.right)[0]
                 while false_answer in items:
                     false_answer = choice(self.right)[0]
                 items[i] = false_answer
-
         question = 'Выбери слово, в котором неверно поставлено ударение:'
         return question, items
 
@@ -682,9 +686,9 @@ def get_task_data(task_num):
     data = {}
     if task_num == '#4':
         with open('data/task4_right.txt', encoding='utf-8') as file:
-            data['right'] = __file2list(file, ' ')
+            data['right'] = __file2list(file, '+')
         with open('data/task4_false.txt', encoding='utf-8') as file:
-            data['false'] = __file2list(file, ' ')
+            data['false'] = __file2list(file, '+')
     elif task_num == '#7':
         data['numerals'] = None
         data['verbs'] = None
