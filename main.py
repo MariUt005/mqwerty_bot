@@ -394,7 +394,7 @@ class Task4:
                     false_answer = choice(self.right)[0]
                 items[i] = false_answer
 
-        question = 'Выбери слово, в котором неверно поставлено ударение:\n\nP.s. Задание работает в тестовом режиме, словарик маленький пока что  ¯\_(ツ)_/¯'
+        question = 'Выбери слово, в котором неверно поставлено ударение:'
         return question, items
 
 
