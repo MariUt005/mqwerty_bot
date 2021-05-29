@@ -2,3 +2,4 @@ config.py
 .idea/*
 data/user_stickerpack.txt
 __pycache__/*
+log.txt
